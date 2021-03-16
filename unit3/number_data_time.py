@@ -1,5 +1,6 @@
 import calendar
 import random
+import time
 from decimal import localcontext
 from decimal import Decimal
 from fractions import Fraction
@@ -10,13 +11,13 @@ from datetime import datetime, timedelta
 def test_decimal():
     a = Decimal('1.3')
     b = Decimal('1.7')
-    print(a/b)
+    print(a / b)
     with localcontext() as ctx:
         ctx.prec = 3
-        print(a/b)
+        print(a / b)
     with localcontext() as ctx:
         ctx.prec = 50
-        print(a/b)
+        print(a / b)
 
     nums = [1.28e+18, 1, -1.28e+18]
     print(sum(nums))
@@ -44,9 +45,9 @@ def complex_calculate():
     复数计算
     :return:
     """
-    a = complex(2,5)
-    b = 3-5j
-    print(a+b)
+    a = complex(2, 5)
+    b = 3 - 5j
+    print(a + b)
 
 
 def test_fraction():
@@ -85,8 +86,8 @@ def f(x):
 def random_choice():
     values = [i for i in range(10)]
     # [print(random.choice(values)) for i in range(10)]
-    print(random.sample(values, 3))     # 返回各不相同的随机数若干
-    random.shuffle(values)      # 原地洗牌
+    print(random.sample(values, 3))  # 返回各不相同的随机数若干
+    random.shuffle(values)  # 原地洗牌
 
 
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -124,7 +125,47 @@ def get_month_range(start_date=None) -> tuple:
     return start_date, end_date
 
 
+def date_range(start: datetime, end: datetime, step=timedelta(1)):
+    while start < end:
+        yield start.date()
+        start += step
+
+
+def test_month_range(flag=True):
+    one_day = timedelta(1)
+    start_date, end_date = get_month_range()
+    if flag:
+        for v in date_range(start_date, end_date, step=one_day):
+            print(v)
+    else:
+        while start_date < end_date:
+            print(start_date)
+            start_date += one_day
+
+
+def str_to_datetime(s: str):
+    """
+    s: 'YYYY-mm-DD'
+    比python原生的 datetime.strptime()快7倍多
+    :param s:
+    :return:
+    """
+    year_s, mon_s, day_s = s.split('-')
+    return datetime(int(year_s), int(mon_s), int(day_s))
+
+
+def test_speed():
+    s = '2021-3-8'
+    for i in range(1000000):
+        a = str_to_datetime(s)
+        # a = datetime.strptime(s, '%Y-%m-%d')
+    print(a)
+
+
 if __name__ == '__main__':
     # random_choice()
     # print(get_previous_byday('Sunday'))
-    print(get_month_range())
+    start_time = time.time()
+    test_speed()
+    end_time = time.time()
+    print('运行时间：', end_time-start_time)
