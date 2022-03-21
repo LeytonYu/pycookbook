@@ -32,7 +32,7 @@ def try_memory_map():
     print(len(m))
     print(m[:10])
     print(m[0])
-    m[0: 11] = b'hello world'
+    m[0:11] = b'hello world'
     m.close()
     with open('初始化文件', 'rb') as f:
         print(f.read(11))
