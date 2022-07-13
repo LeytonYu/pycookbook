@@ -1,33 +1,58 @@
-import json
+class myproperty:
+
+    def __init__(self, f_get, f_set=None, f_del=None):
+        self._f_get = f_get
+        self._f_set = f_set
+        self._f_del = f_del
+
+    def __get__(self, instance, owner):
+        return self._f_get(instance)
+
+    def __set__(self, instance, value):
+        if not hasattr(self._f_set, '__call__'):
+            raise AttributeError('Readonly attribute')
+        self._f_set(instance, value)
+
+    def __delete__(self, obj):
+        if not hasattr(self._f_del, '__call__'):
+            raise AttributeError('Can not delete this attribute')
+        self._f_del(obj)
+
+    def setter(self, function):
+        self._f_set = function
+        return self
+
+    def deleter(self, function):
+        self._f_del = function
+        return self
 
 
-def str_to_json(value):
-    if value and not isinstance(value, list):
-        try:
-            return json.loads(value)
-        except:
-            try:
-                return json.loads(value.replace("'", '"'))
-            except:
-                return []
-    elif value and isinstance(value, list):
-        return value
-    else:
-        return []
+class MyFurther:
+
+    def __init__(self, v):
+        self._value = v
+
+    @myproperty
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, v):
+        self._value = v
+
+    @value.deleter
+    def value(self):
+        del self._value
+        print('delete function')
 
 
-with open('用户意向高校.json', encoding='utf8') as f:
-    a = json.load(open('用户意向高校.json', encoding='utf8'))
+def test_one():
+    obj = MyFurther(10)
+    print(obj.value)
+    obj.value = 11
+    print(obj.value)
+    del obj.value
 
-    st = {}
-    for obj in a.get('RECORDS'):
-        for key, value in obj.items():
-            lst = str_to_json(value)
-            for item in lst:
-                st.setdefault(item['name'], 0)
-                st[item['name']] += 1
-    res = sorted(st.items(), key=lambda x: x[1], reverse=True)[:100]
-    res_wb = {obj[0]: obj[1] for obj in res}
-    print(res_wb)
-    with open('top_intention_university_leyton.json', 'w', encoding='utf8') as ff:
-        json.dump(res_wb, ff, ensure_ascii=False)
+
+if __name__ == '__main__':
+    test_one()
